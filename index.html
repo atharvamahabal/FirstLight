@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Your Morning Universe</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -228,6 +228,18 @@
     .grid-2 { grid-template-columns: 1fr; }
     .shots-grid { grid-template-columns: 1fr; }
     .page-card { grid-template-columns: 1fr; }
+    .page-card img { max-width: 320px; justify-self: center; }
+  }
+
+  @media (max-width: 520px) {
+    .site { padding: 52px 16px 96px; }
+    .site h2 { font-size: 24px; }
+    .site .lead { font-size: 16px; }
+    .cta { flex-direction: column; }
+    .cta a { width: 100%; text-align: center; }
+    .card { padding: 16px 16px 14px; }
+    .pill { font-size: 11px; }
+    .page-card img { max-width: 220px; justify-self: center; }
   }
 </style>
 </head>
@@ -299,14 +311,14 @@
         </div>
       </div>
       <div class="card page-card">
-        <img src="screenshots/02_777.png" alt="777 screen screenshot" loading="lazy">
+        <img src="screenshots/01_777.png" alt="777 screen screenshot" loading="lazy">
         <div>
           <h3>&#x1F3B0; 777</h3>
           <p>Pull a fun “life combo” for variety. Sometimes you hit a jackpot to keep mornings playful.</p>
         </div>
       </div>
       <div class="card page-card">
-        <img src="screenshots/04_trophies.png" alt="Trophies screen screenshot" loading="lazy">
+        <img src="screenshots/05_trophies.png" alt="Trophies screen screenshot" loading="lazy">
         <div>
           <h3>&#x1F3C6; Trophies</h3>
           <p>Rare achievements that “charge up” as you progress. Tap any trophy to see exactly what’s left (e.g. 4/5).</p>
@@ -320,7 +332,7 @@
         </div>
       </div>
       <div class="card page-card">
-        <img src="screenshots/01_spin.png" alt="Spin screen screenshot" loading="lazy">
+        <img src="screenshots/04_spin.png" alt="Spin screen screenshot" loading="lazy">
         <div>
           <h3>&#x1F3A1; Spin</h3>
           <p>One spin gives one clear challenge. Timers + quick inputs keep it practical. Mark as done to earn XP.</p>
@@ -387,11 +399,11 @@
         <figcaption>🌅 Home — stats + vibe + quick start</figcaption>
       </figure>
       <figure class="shot">
-        <img src="screenshots/02_777.png" alt="777 page screenshot" loading="lazy">
+        <img src="screenshots/01_777.png" alt="777 page screenshot" loading="lazy">
         <figcaption>&#x1F3B0; 777 — playful combos to break boredom</figcaption>
       </figure>
       <figure class="shot">
-        <img src="screenshots/04_trophies.png" alt="Trophies page screenshot" loading="lazy">
+        <img src="screenshots/05_trophies.png" alt="Trophies page screenshot" loading="lazy">
         <figcaption>&#x1F3C6; Trophies — rare achievements with visible progress</figcaption>
       </figure>
       <figure class="shot">
@@ -399,7 +411,7 @@
         <figcaption>✅ Ritual — checklist that turns into flow</figcaption>
       </figure>
       <figure class="shot">
-        <img src="screenshots/01_spin.png" alt="Spin page screenshot" loading="lazy">
+        <img src="screenshots/04_spin.png" alt="Spin page screenshot" loading="lazy">
         <figcaption>&#x1F3A1; Spin — one clear challenge, fast reward loop</figcaption>
       </figure>
     </div>
