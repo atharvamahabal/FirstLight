@@ -31,7 +31,8 @@
     font-family: 'DM Sans', sans-serif;
     color: var(--text);
     min-height: 100vh;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
     position: relative;
   }
 
@@ -665,6 +666,12 @@
     backdrop-filter: blur(20px);
     z-index: 50;
     border-top: 1px solid var(--glass-border);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+  }
+  body.scrolled .bottom-nav {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(-50%) translateY(20px);
   }
   .nav-btn {
     display: flex;
@@ -686,6 +693,200 @@
   .nav-btn.active { color: var(--purple); }
   .nav-btn.active .nav-icon { transform: scale(1.15); filter: drop-shadow(0 0 6px var(--purple)); }
   .nav-btn:hover { color: var(--text-muted); }
+
+  /* ─── MARKETING PAGE (SCROLL) ─── */
+  .site {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 72px 20px 120px;
+  }
+  .site h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+  }
+  .site p {
+    color: var(--text-muted);
+    line-height: 1.7;
+    font-size: 15px;
+  }
+  .site .kicker {
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--text-dim);
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .site .lead {
+    font-size: 18px;
+    color: rgba(238,240,248,0.72);
+    line-height: 1.7;
+    margin-top: 10px;
+  }
+  .site .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.10), transparent);
+    margin: 40px 0;
+  }
+  .grid-3 {
+    display: grid;
+    gap: 14px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin-top: 18px;
+  }
+  .grid-2 {
+    display: grid;
+    gap: 14px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-top: 18px;
+  }
+  .card {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 18px;
+    padding: 18px 18px 16px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+  .card-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 14px;
+    letter-spacing: 0.4px;
+  }
+  .card-title .chip {
+    font-size: 12px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.12);
+    color: rgba(238,240,248,0.78);
+    background: rgba(255,255,255,0.03);
+  }
+  .steps {
+    margin-top: 16px;
+    display: grid;
+    gap: 12px;
+  }
+  .step {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .step-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 10px;
+    background: rgba(155,127,244,0.12);
+    border: 1px solid rgba(155,127,244,0.22);
+    color: rgba(155,127,244,0.95);
+    display: grid;
+    place-items: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    flex: none;
+  }
+  .step p { margin-top: 2px; }
+  .shots-grid {
+    display: grid;
+    gap: 14px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin-top: 18px;
+  }
+  .shot {
+    overflow: hidden;
+    border-radius: 18px;
+    border: 1px solid rgba(255,255,255,0.10);
+    background: rgba(255,255,255,0.02);
+  }
+  .shot img {
+    width: 100%;
+    height: auto;
+    display: block;
+    transform: scale(1.01);
+    transition: transform 0.25s ease, filter 0.25s ease;
+  }
+  .shot:hover img {
+    transform: scale(1.03);
+    filter: saturate(1.1);
+  }
+  .shot figcaption {
+    padding: 12px 12px 14px;
+    font-size: 12px;
+    color: var(--text-muted);
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+  .pill-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+  }
+  .pill {
+    padding: 10px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.10);
+    background: rgba(255,255,255,0.03);
+    font-size: 12px;
+    color: rgba(238,240,248,0.75);
+  }
+  .cta {
+    margin-top: 18px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .cta a {
+    text-decoration: none;
+    color: white;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    padding: 14px 16px;
+    border-radius: 14px;
+    border: 1px solid rgba(155,127,244,0.20);
+    background: linear-gradient(135deg, rgba(124,58,237,0.95), rgba(155,127,244,0.95));
+    box-shadow: 0 10px 34px rgba(124,58,237,0.25);
+  }
+  .cta a.secondary {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.10);
+    color: rgba(238,240,248,0.90);
+    box-shadow: none;
+  }
+  .page-card {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 14px;
+    align-items: center;
+  }
+  .page-card img {
+    width: 100%;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.10);
+    background: rgba(255,255,255,0.02);
+  }
+  .page-card h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 800;
+    margin-bottom: 4px;
+  }
+  .page-card p { font-size: 14px; }
+
+  @media (max-width: 980px) {
+    .grid-3 { grid-template-columns: 1fr; }
+    .grid-2 { grid-template-columns: 1fr; }
+    .shots-grid { grid-template-columns: 1fr; }
+    .page-card { grid-template-columns: 1fr; }
+  }
 </style>
 </head>
 <body>
@@ -811,6 +1012,181 @@
   <button class="nav-btn" onclick="goTo(4)" id="nav-4"><span class="nav-icon">🏆</span><span class="nav-label">Trophies</span></button>
 </nav>
 
+<main class="site">
+  <div class="kicker">DAWNRISE</div>
+  <h2>Your morning universe — built to replace doomscrolling.</h2>
+  <p class="lead">
+    Open this instead of Twitter/Instagram. Get a tiny challenge, a tiny ritual, and a tiny win — then start your day with momentum.
+    Over time, those wins stack into a routine you actually control.
+  </p>
+  <div class="cta">
+    <a href="#screenshots">See screenshots</a>
+    <a class="secondary" href="#how-to-use">How to use</a>
+    <a class="secondary" href="#pages">Pages</a>
+  </div>
+
+  <div class="pill-row" aria-label="Highlights">
+    <div class="pill">⚡ XP + streaks to keep you consistent</div>
+    <div class="pill">🎡 One spin → one clear action</div>
+    <div class="pill">✅ Ritual checklist for a calm start</div>
+    <div class="pill">🏆 Trophies that “charge up” with progress</div>
+    <div class="pill">🎰 777 combos for fun + variety</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <section id="why-morning">
+    <div class="kicker">Why morning</div>
+    <h2>Why this works (especially after waking)</h2>
+    <div class="grid-3">
+      <div class="card">
+        <div class="card-title"><span class="chip">Biology</span> Cortisol is naturally higher in the morning</div>
+        <p style="margin-top:10px;">
+          After waking, your body ramps up alertness. If you immediately jump into high-stimulation feeds, it’s easy to feel rushed,
+          distracted, and reactive. A short “first win” can set a calmer tone for your attention.
+        </p>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="chip">Behavior</span> Small actions beat big plans</div>
+        <p style="margin-top:10px;">
+          You don’t need a 2‑hour routine. You need one doable step you can finish. Dawnrise focuses on quick tasks that create
+          a feedback loop: complete → feel progress → come back tomorrow.
+        </p>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="chip">Time</span> Less scrolling, more control</div>
+        <p style="margin-top:10px;">
+          The goal is simple: open Dawnrise first, not social media. Win your morning in minutes, then return to life
+          with more clarity and less wasted time.
+        </p>
+      </div>
+    </div>
+    <p style="margin-top:14px; color: var(--text-dim); font-size: 12px;">
+      Note: this is educational and not medical advice.
+    </p>
+  </section>
+
+  <div class="divider"></div>
+
+  <section id="pages">
+    <div class="kicker">Pages</div>
+    <h2>What each page does</h2>
+    <div class="grid-2">
+      <div class="card page-card">
+        <img src="screenshots/00_home.png" alt="Home screen screenshot" loading="lazy">
+        <div>
+          <h3>🌅 Home</h3>
+          <p>See your streak, XP, and the vibe for the day. Tap your pet, then jump into action with one button.</p>
+        </div>
+      </div>
+      <div class="card page-card">
+        <img src="screenshots/01_spin.png" alt="Spin screen screenshot" loading="lazy">
+        <div>
+          <h3>🎡 Spin</h3>
+          <p>One spin gives one clear challenge. Timers + quick inputs keep it practical. Mark as done to earn XP.</p>
+        </div>
+      </div>
+      <div class="card page-card">
+        <img src="screenshots/02_777.png" alt="777 screen screenshot" loading="lazy">
+        <div>
+          <h3>🎰 777</h3>
+          <p>Pull a fun “life combo” for variety. Sometimes you hit a jackpot to keep mornings playful.</p>
+        </div>
+      </div>
+      <div class="card page-card">
+        <img src="screenshots/03_ritual.png" alt="Ritual screen screenshot" loading="lazy">
+        <div>
+          <h3>✅ Ritual</h3>
+          <p>A checklist that turns mornings into flow. Finish items, watch the progress bar fill, and collect XP.</p>
+        </div>
+      </div>
+      <div class="card page-card">
+        <img src="screenshots/04_trophies.png" alt="Trophies screen screenshot" loading="lazy">
+        <div>
+          <h3>🏆 Trophies</h3>
+          <p>Rare achievements that “charge up” as you progress. Tap any trophy to see exactly what’s left (e.g. 4/5).</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="chip">Progress</span> 50+ goals that build routine</div>
+        <p style="margin-top:10px;">
+          The trophy room makes progress visible. You’re not guessing — you can see how close you are, and keep stacking wins
+          until your routine feels automatic.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <section id="how-to-use">
+    <div class="kicker">How to use</div>
+    <h2>Use Dawnrise in 5 minutes</h2>
+    <div class="card">
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div>
+            <div class="card-title" style="margin-bottom:6px;">Open it first</div>
+            <p>Before any social apps, open Dawnrise once you wake up. Treat it like brushing your teeth.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div>
+            <div class="card-title" style="margin-bottom:6px;">Do one quick win</div>
+            <p>Spin once and complete the challenge (or do a ritual item). Keep it small. Keep it daily.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div>
+            <div class="card-title" style="margin-bottom:6px;">Track progress, not perfection</div>
+            <p>Watch trophies charge up and your activity list fill. You’re building identity through consistency.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div>
+            <div class="card-title" style="margin-bottom:6px;">Repeat for 30 days</div>
+            <p>In a month, you’ll feel the difference: less chaotic mornings, more direction, and less time wasted.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <section id="screenshots">
+    <div class="kicker">Screenshots</div>
+    <h2>All screenshots</h2>
+    <p>Quick preview of the full flow.</p>
+    <div class="shots-grid">
+      <figure class="shot">
+        <img src="screenshots/00_home.png" alt="Home page screenshot" loading="lazy">
+        <figcaption>🌅 Home — stats + vibe + quick start</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="screenshots/01_spin.png" alt="Spin page screenshot" loading="lazy">
+        <figcaption>🎡 Spin — one clear challenge, fast reward loop</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="screenshots/02_777.png" alt="777 page screenshot" loading="lazy">
+        <figcaption>🎰 777 — playful combos to break boredom</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="screenshots/03_ritual.png" alt="Ritual page screenshot" loading="lazy">
+        <figcaption>✅ Ritual — checklist that turns into flow</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="screenshots/04_trophies.png" alt="Trophies page screenshot" loading="lazy">
+        <figcaption>🏆 Trophies — rare achievements with visible progress</figcaption>
+      </figure>
+    </div>
+  </section>
+</main>
+
 <script>
 // ─── CLOCK ───
 function updateClock() {
@@ -824,6 +1200,14 @@ function updateClock() {
     days[now.getDay()].toUpperCase() + ' · ' + months[now.getMonth()].toUpperCase() + ' ' + now.getDate();
 }
 updateClock(); setInterval(updateClock, 10000);
+
+// ─── HIDE DEMO NAV ON SCROLL ───
+function onScroll() {
+  const threshold = Math.max(240, window.innerHeight * 0.6);
+  document.body.classList.toggle('scrolled', window.scrollY > threshold);
+}
+onScroll();
+window.addEventListener('scroll', onScroll, { passive: true });
 
 // ─── NAVIGATION ───
 let currentScreen = 0;

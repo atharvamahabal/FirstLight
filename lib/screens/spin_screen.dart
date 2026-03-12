@@ -6,14 +6,12 @@ import '../models/data.dart';
 import '../widgets/common.dart';
 
 class SpinScreen extends StatefulWidget {
-  final void Function(int xpEarned) onTaskDone;
+  final void Function(WheelSegment segment) onTaskDone;
   final void Function(int count) onConfetti;
-  final void Function(int xp) onAddXp;
   const SpinScreen({
     super.key,
     required this.onTaskDone,
     required this.onConfetti,
-    required this.onAddXp,
   });
 
   @override
@@ -28,6 +26,10 @@ class _SpinScreenState extends State<SpinScreen>
   bool _spinning = false;
   WheelSegment? _result;
   bool _showResult = false;
+
+  static const int _maxWheelSlices = 8;
+  late List<WheelSegment> _activeSegments;
+  late List<WheelSegment> _upcomingSegments;
 
   // Timer state
   int _timerSecondsLeft = 0;
@@ -50,6 +52,16 @@ class _SpinScreenState extends State<SpinScreen>
     super.initState();
     _ctrl = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 3500));
+    _rebuildWheelSegments();
+  }
+
+  void _rebuildWheelSegments() {
+    final shuffled = wheelSegments.toList()..shuffle(Random());
+    final sliceCount = min(_maxWheelSlices, shuffled.length);
+    _activeSegments = shuffled.take(sliceCount).toList();
+    final activeLabels = _activeSegments.map((s) => s.label).toSet();
+    _upcomingSegments =
+        wheelSegments.where((s) => !activeLabels.contains(s.label)).toList();
   }
 
   @override
@@ -71,20 +83,23 @@ class _SpinScreenState extends State<SpinScreen>
       _breatheMode = false;
       _textSubmitted = false;
       _textCtrl.clear();
+      _rebuildWheelSegments();
     });
 
     final rng = Random();
     // Pick random segment directly
-    final randomIdx = rng.nextInt(wheelSegments.length);
+    final randomIdx = rng.nextInt(_activeSegments.length);
     final extraSpins = (rng.nextDouble() * 4 + 5) * 2 * pi;
-    final segArc = (2 * pi) / wheelSegments.length;
+    final segArc = (2 * pi) / _activeSegments.length;
     // Target angle that lands on randomIdx
     final targetOffset = -(randomIdx * segArc + segArc / 2 + pi / 2);
     final rounds = (extraSpins / (2 * pi)).ceil();
     final targetAngle = rounds * 2 * pi + targetOffset;
 
     final startAngle = _currentAngle % (2 * pi);
-    _anim = Tween<double>(begin: startAngle, end: startAngle + (targetAngle - startAngle).abs() + extraSpins)
+    _anim = Tween<double>(
+            begin: startAngle,
+            end: startAngle + (targetAngle - startAngle).abs() + extraSpins)
         .animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOutQuart));
     _ctrl.reset();
     _ctrl.forward().then((_) {
@@ -99,12 +114,12 @@ class _SpinScreenState extends State<SpinScreen>
   }
 
   void _computeResult() {
-    final arc = (2 * pi) / wheelSegments.length;
+    final arc = (2 * pi) / _activeSegments.length;
     final normalised =
         ((-_currentAngle - pi / 2) % (2 * pi) + (2 * pi)) % (2 * pi);
-    final idx = (normalised / arc).floor() % wheelSegments.length;
+    final idx = (normalised / arc).floor() % _activeSegments.length;
     setState(() {
-      _result = wheelSegments[idx];
+      _result = _activeSegments[idx];
       _timerSecondsLeft = _result!.timerSeconds ?? 0;
       _breatheMode = _result!.label.toLowerCase().contains('breathe') ||
           _result!.label.toLowerCase().contains('meditat');
@@ -124,8 +139,7 @@ class _SpinScreenState extends State<SpinScreen>
           _timerDone = true;
           t.cancel();
           if (_breatheMode) setState(() => _breatheText = '✦ Complete! ✦');
-          widget.onAddXp(_result!.xp);
-          widget.onConfetti(40);
+          widget.onConfetti(20);
         }
       });
     });
@@ -134,8 +148,8 @@ class _SpinScreenState extends State<SpinScreen>
   // Breathing phases: 10s in → 5s hold → 5s out × 4 sets
   static const _breathPhases = [
     (10, 'Breathe IN 🌬️'),
-    (5,  'Hold 🫁'),
-    (5,  'Breathe OUT 💨'),
+    (5, 'Hold 🫁'),
+    (5, 'Breathe OUT 💨'),
   ];
 
   void _startBreatheGuide() {
@@ -166,7 +180,9 @@ class _SpinScreenState extends State<SpinScreen>
   }
 
   void _markDone() {
-    widget.onTaskDone(_result?.xp ?? 10);
+    final seg = _result;
+    if (seg == null) return;
+    widget.onTaskDone(seg);
   }
 
   @override
@@ -178,14 +194,18 @@ class _SpinScreenState extends State<SpinScreen>
         children: [
           const Text('Daily Challenge',
               style: TextStyle(
-                  fontSize: 11, letterSpacing: 3,
-                  color: AppColors.textMuted, fontWeight: FontWeight.w700)),
+                  fontSize: 11,
+                  letterSpacing: 3,
+                  color: AppColors.textMuted,
+                  fontWeight: FontWeight.w700)),
           const SizedBox(height: 6),
           // Single-line title
           const Text('Spin the Wheel 🎡',
               style: TextStyle(
-                  fontFamily: 'Syne', fontSize: 28,
-                  fontWeight: FontWeight.w800, height: 1.1)),
+                  fontFamily: 'Syne',
+                  fontSize: 28,
+                  fontWeight: FontWeight.w800,
+                  height: 1.1)),
           const SizedBox(height: 22),
 
           // Wheel
@@ -214,6 +234,7 @@ class _SpinScreenState extends State<SpinScreen>
                           painter: _WheelPainter(
                             angle: _spinning ? _anim.value : _currentAngle,
                             isSpinning: _spinning,
+                            segments: _activeSegments,
                           ),
                         ),
                       ),
@@ -260,27 +281,32 @@ class _SpinScreenState extends State<SpinScreen>
                                   children: [
                                     Text(_result!.category,
                                         style: const TextStyle(
-                                            fontSize: 9, letterSpacing: 2,
+                                            fontSize: 9,
+                                            letterSpacing: 2,
                                             color: AppColors.textMuted)),
                                     const SizedBox(height: 3),
                                     Text(_result!.label,
                                         style: const TextStyle(
-                                            fontFamily: 'Syne', fontSize: 16,
+                                            fontFamily: 'Syne',
+                                            fontSize: 16,
                                             fontWeight: FontWeight.w700)),
                                   ],
                                 ),
                               ),
                               // XP badge
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 4),
                                 decoration: BoxDecoration(
                                   color: AppColors.amber.withOpacity(0.15),
                                   borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(color: AppColors.amber.withOpacity(0.3)),
+                                  border: Border.all(
+                                      color: AppColors.amber.withOpacity(0.3)),
                                 ),
                                 child: Text('+${_result!.xp} XP',
                                     style: const TextStyle(
-                                        fontSize: 11, color: AppColors.amber,
+                                        fontSize: 11,
+                                        color: AppColors.amber,
                                         fontWeight: FontWeight.w700)),
                               ),
                             ],
@@ -307,7 +333,8 @@ class _SpinScreenState extends State<SpinScreen>
 
                         // Mark done button
                         if (_timerDone ||
-                            (_result!.timerSeconds == null && !_result!.hasTextInput)) ...[
+                            (_result!.timerSeconds == null &&
+                                !_result!.hasTextInput)) ...[
                           const SizedBox(height: 14),
                           SecondaryButton(
                             label: '✓  Mark as Done  (+${_result!.xp} XP)',
@@ -330,14 +357,17 @@ class _SpinScreenState extends State<SpinScreen>
           const SizedBox(height: 28),
           const Text('MORE CHALLENGES',
               style: TextStyle(
-                  fontSize: 10, letterSpacing: 2.5,
-                  color: AppColors.textDim, fontWeight: FontWeight.w600)),
+                  fontSize: 10,
+                  letterSpacing: 2.5,
+                  color: AppColors.textDim,
+                  fontWeight: FontWeight.w600)),
           const SizedBox(height: 12),
-          ...wheelSegments.take(6).map((s) => _GreySegmentRow(segment: s)),
+          ..._upcomingSegments.take(6).map((s) => _GreySegmentRow(segment: s)),
           const SizedBox(height: 8),
           const Center(
             child: Text('• • •',
-                style: TextStyle(color: AppColors.textDim, letterSpacing: 6, fontSize: 16)),
+                style: TextStyle(
+                    color: AppColors.textDim, letterSpacing: 6, fontSize: 16)),
           ),
         ],
       ),
@@ -365,7 +395,8 @@ class _SpinScreenState extends State<SpinScreen>
             GestureDetector(
               onTap: _startTimer,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
                       colors: [AppColors.purpleDark, AppColors.purple]),
@@ -373,28 +404,34 @@ class _SpinScreenState extends State<SpinScreen>
                   boxShadow: [
                     BoxShadow(
                         color: AppColors.purple.withOpacity(0.35),
-                        blurRadius: 16, offset: const Offset(0, 4)),
+                        blurRadius: 16,
+                        offset: const Offset(0, 4)),
                   ],
                 ),
                 child: const Text('▶  START TIMER',
                     style: TextStyle(
-                        fontFamily: 'Syne', fontSize: 13,
-                        fontWeight: FontWeight.w700, color: Colors.white,
+                        fontFamily: 'Syne',
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
                         letterSpacing: 1)),
               ),
             ),
           if (_timerRunning)
-            const Text('RUNNING... XP awarded on completion',
+            const Text('RUNNING... Finish the timer to unlock “Mark as Done”',
                 style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
           if (_timerDone)
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text('✦ ', style: TextStyle(color: AppColors.mint, fontSize: 14)),
-                Text('Done! +${_result!.xp} XP awarded',
+                const Text('✦ ',
+                    style: TextStyle(color: AppColors.mint, fontSize: 14)),
+                const Text('Done! Tap “Mark as Done”',
                     style: const TextStyle(
-                        fontFamily: 'Syne', fontSize: 13,
-                        fontWeight: FontWeight.w700, color: AppColors.mint)),
+                        fontFamily: 'Syne',
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.mint)),
               ],
             ),
         ],
@@ -413,8 +450,10 @@ class _SpinScreenState extends State<SpinScreen>
           child: Text(
             _breatheText,
             style: const TextStyle(
-                fontFamily: 'Syne', fontSize: 20,
-                fontWeight: FontWeight.w700, color: AppColors.mint),
+                fontFamily: 'Syne',
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: AppColors.mint),
             textAlign: TextAlign.center,
           ),
         ),
@@ -436,11 +475,13 @@ class _SpinScreenState extends State<SpinScreen>
             fillColor: AppColors.glass,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide(color: AppColors.purple.withOpacity(0.5), width: 1.5),
+              borderSide: BorderSide(
+                  color: AppColors.purple.withOpacity(0.5), width: 1.5),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide(color: AppColors.purple.withOpacity(0.3), width: 1.5),
+              borderSide: BorderSide(
+                  color: AppColors.purple.withOpacity(0.3), width: 1.5),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
@@ -456,15 +497,16 @@ class _SpinScreenState extends State<SpinScreen>
             onTap: () {
               if (_textCtrl.text.trim().isEmpty) return;
               setState(() => _textSubmitted = true);
-              widget.onAddXp(_result!.xp);
               widget.onConfetti(20);
             },
           ),
         if (_textSubmitted)
-          const Text('✦  Thought saved!',
+          const Text('✦  Thought saved — tap “Mark as Done”',
               style: TextStyle(
-                  color: AppColors.mint, fontFamily: 'Syne',
-                  fontSize: 14, fontWeight: FontWeight.w700)),
+                  color: AppColors.mint,
+                  fontFamily: 'Syne',
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700)),
       ],
     );
   }
@@ -488,13 +530,14 @@ class _GreySegmentRow extends StatelessWidget {
             Expanded(
               child: Text(segment.label,
                   style: const TextStyle(
-                      fontFamily: 'Syne', fontSize: 13,
-                      fontWeight: FontWeight.w600, color: AppColors.textMuted)),
+                      fontFamily: 'Syne',
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textMuted)),
             ),
             Text(segment.category,
                 style: const TextStyle(
-                    fontSize: 9, letterSpacing: 1.5,
-                    color: AppColors.textDim)),
+                    fontSize: 9, letterSpacing: 1.5, color: AppColors.textDim)),
           ],
         ),
       ),
@@ -506,60 +549,41 @@ class _GreySegmentRow extends StatelessWidget {
 class _WheelPainter extends CustomPainter {
   final double angle;
   final bool isSpinning;
-  _WheelPainter({required this.angle, this.isSpinning = false});
+  final List<WheelSegment> segments;
+  _WheelPainter(
+      {required this.angle, this.isSpinning = false, required this.segments});
 
   @override
   void paint(Canvas canvas, Size size) {
     final cx = size.width / 2;
     final cy = size.height / 2;
     final r = min(cx, cy) - 2;
-    final arc = (2 * pi) / wheelSegments.length;
+    final arc = (2 * pi) / segments.length;
 
-    for (int i = 0; i < wheelSegments.length; i++) {
-      final seg = wheelSegments[i];
+    for (int i = 0; i < segments.length; i++) {
+      final seg = segments[i];
       final start = angle + i * arc;
       final segColor = Color(seg.color);
 
       final fillPaint = Paint()..color = segColor.withOpacity(0.18);
-      canvas.drawArc(
-          Rect.fromCircle(center: Offset(cx, cy), radius: r), start, arc, true, fillPaint);
+      canvas.drawArc(Rect.fromCircle(center: Offset(cx, cy), radius: r), start,
+          arc, true, fillPaint);
 
       final borderPaint = Paint()
         ..color = segColor.withOpacity(0.5)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1.5;
-      canvas.drawArc(
-          Rect.fromCircle(center: Offset(cx, cy), radius: r), start, arc, true, borderPaint);
+      canvas.drawArc(Rect.fromCircle(center: Offset(cx, cy), radius: r), start,
+          arc, true, borderPaint);
 
       final mid = start + arc / 2;
       final ex = cx + cos(mid) * r * 0.65;
       final ey = cy + sin(mid) * r * 0.65;
       final tp = TextPainter(
-        text: TextSpan(text: seg.emoji, style: const TextStyle(fontSize: 20)),
+        text: TextSpan(text: seg.emoji, style: const TextStyle(fontSize: 24)),
         textDirection: TextDirection.ltr,
       )..layout();
       tp.paint(canvas, Offset(ex - tp.width / 2, ey - tp.height / 2));
-
-      final words = seg.label.split(' ');
-      canvas.save();
-      canvas.translate(cx, cy);
-      canvas.rotate(mid);
-      canvas.translate(r * 0.35, 0);
-      canvas.rotate(pi / 2);
-      for (int wi = 0; wi < words.length; wi++) {
-        final wtp = TextPainter(
-          text: TextSpan(
-            text: words[wi],
-            style: const TextStyle(
-                fontSize: 9, fontWeight: FontWeight.w600,
-                color: Color(0xB3FFFFFF)),
-          ),
-          textDirection: TextDirection.ltr,
-        )..layout();
-        final dy = (wi - (words.length - 1) / 2) * 11;
-        wtp.paint(canvas, Offset(-wtp.width / 2, dy - wtp.height / 2));
-      }
-      canvas.restore();
     }
 
     // Center spin button — elevated pill look
@@ -583,19 +607,17 @@ class _WheelPainter extends CustomPainter {
     canvas.drawCircle(Offset(cx, cy), 28, btnBorder);
 
     // Inner highlight
-    final highlight = Paint()
-      ..color = Colors.white.withOpacity(0.12);
-    canvas.drawArc(
-        Rect.fromCircle(center: Offset(cx, cy - 4), radius: 18),
-        pi, pi, false, highlight);
+    final highlight = Paint()..color = Colors.white.withOpacity(0.12);
+    canvas.drawArc(Rect.fromCircle(center: Offset(cx, cy - 4), radius: 18), pi,
+        pi, false, highlight);
 
     final starPainter = TextPainter(
       text: const TextSpan(
           text: '▶', style: TextStyle(fontSize: 14, color: Colors.white)),
       textDirection: TextDirection.ltr,
     )..layout();
-    starPainter.paint(
-        canvas, Offset(cx - starPainter.width / 2 + 1, cy - starPainter.height / 2));
+    starPainter.paint(canvas,
+        Offset(cx - starPainter.width / 2 + 1, cy - starPainter.height / 2));
 
     // Outer glow ring
     final glowPaint = Paint()

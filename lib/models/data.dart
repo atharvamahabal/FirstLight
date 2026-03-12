@@ -18,6 +18,42 @@ class WheelSegment {
   });
 }
 
+class ActivityEntry {
+  final String type;
+  final String label;
+  final String emoji;
+  final int xp;
+  final String? category;
+  final int timestampMs;
+
+  const ActivityEntry({
+    required this.type,
+    required this.label,
+    required this.emoji,
+    required this.xp,
+    required this.timestampMs,
+    this.category,
+  });
+
+  Map<String, dynamic> toJson() => {
+        'type': type,
+        'label': label,
+        'emoji': emoji,
+        'xp': xp,
+        'category': category,
+        'timestampMs': timestampMs,
+      };
+
+  factory ActivityEntry.fromJson(Map<String, dynamic> json) => ActivityEntry(
+        type: json['type'] as String,
+        label: json['label'] as String,
+        emoji: json['emoji'] as String,
+        xp: (json['xp'] as num).toInt(),
+        category: json['category'] as String?,
+        timestampMs: (json['timestampMs'] as num).toInt(),
+      );
+}
+
 class RitualItem {
   final String emoji;
   final String name;

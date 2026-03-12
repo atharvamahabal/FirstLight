@@ -7,7 +7,13 @@ import '../widgets/common.dart';
 class RitualScreen extends StatefulWidget {
   final void Function(int count) onConfetti;
   final void Function(int xp) onAddXp;
-  const RitualScreen({super.key, required this.onConfetti, required this.onAddXp});
+  final void Function(RitualItem item)? onTaskDone;
+  const RitualScreen({
+    super.key,
+    required this.onConfetti,
+    required this.onAddXp,
+    this.onTaskDone,
+  });
 
   @override
   State<RitualScreen> createState() => _RitualScreenState();
@@ -79,7 +85,12 @@ class _RitualScreenState extends State<RitualScreen> {
   void _complete(int i) {
     setState(() => _rituals[i].done = true);
     widget.onConfetti(50); // rain confetti
-    widget.onAddXp(_rituals[i].xp);
+    final cb = widget.onTaskDone;
+    if (cb != null) {
+      cb(_rituals[i]);
+    } else {
+      widget.onAddXp(_rituals[i].xp);
+    }
     if (_doneCount == _rituals.length) {
       widget.onConfetti(80);
     }

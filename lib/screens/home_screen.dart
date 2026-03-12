@@ -7,7 +7,7 @@ import '../widgets/common.dart';
 class HomeScreen extends StatefulWidget {
   final int streak;
   final int xp;
-  final int badgeCount;
+  final int tasksCompleted;
   final VoidCallback onSpin;
   final void Function(int count) onConfetti;
   final VoidCallback onReset;
@@ -16,7 +16,7 @@ class HomeScreen extends StatefulWidget {
     super.key,
     required this.streak,
     required this.xp,
-    required this.badgeCount,
+    required this.tasksCompleted,
     required this.onSpin,
     required this.onConfetti,
     required this.onReset,
@@ -40,8 +40,9 @@ class _HomeScreenState extends State<HomeScreen>
     super.initState();
     _updateTime();
     _timer = Timer.periodic(const Duration(seconds: 10), (_) => _updateTime());
-    _floatCtrl = AnimationController(vsync: this, duration: const Duration(seconds: 4))
-      ..repeat(reverse: true);
+    _floatCtrl =
+        AnimationController(vsync: this, duration: const Duration(seconds: 4))
+          ..repeat(reverse: true);
     _floatAnim = Tween<double>(begin: 0, end: -10)
         .animate(CurvedAnimation(parent: _floatCtrl, curve: Curves.easeInOut));
   }
@@ -49,7 +50,7 @@ class _HomeScreenState extends State<HomeScreen>
   void _updateTime() {
     final now = DateTime.now();
     setState(() {
-      _timeStr = DateFormat('HH:mm').format(now);
+      _timeStr = DateFormat('hh:mm a').format(now);
       _dateStr = DateFormat('EEEE · MMM d').format(now).toUpperCase();
     });
   }
@@ -59,8 +60,8 @@ class _HomeScreenState extends State<HomeScreen>
     final r = reactions[DateTime.now().millisecond % reactions.length];
     setState(() => _petEmoji = r);
     widget.onConfetti(5);
-    Future.delayed(
-        const Duration(milliseconds: 800), () => setState(() => _petEmoji = '🐣'));
+    Future.delayed(const Duration(milliseconds: 800),
+        () => setState(() => _petEmoji = '🐣'));
   }
 
   @override
@@ -82,7 +83,8 @@ class _HomeScreenState extends State<HomeScreen>
             child: GestureDetector(
               onTap: widget.onReset,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: AppColors.glass,
                   borderRadius: BorderRadius.circular(20),
@@ -91,9 +93,14 @@ class _HomeScreenState extends State<HomeScreen>
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.refresh_rounded, size: 13, color: AppColors.textMuted),
+                    Icon(Icons.refresh_rounded,
+                        size: 13, color: AppColors.textMuted),
                     SizedBox(width: 4),
-                    Text('Reset', style: TextStyle(fontSize: 11, color: AppColors.textMuted, letterSpacing: 0.5)),
+                    Text('Reset',
+                        style: TextStyle(
+                            fontSize: 11,
+                            color: AppColors.textMuted,
+                            letterSpacing: 0.5)),
                   ],
                 ),
               ),
@@ -157,9 +164,12 @@ class _HomeScreenState extends State<HomeScreen>
                     builder: (_, __) => Transform.translate(
                       offset: Offset(0, _floatAnim.value),
                       child: Text(_petEmoji,
-                          style: const TextStyle(
-                              fontSize: 68,
-                              shadows: [Shadow(color: Color(0x809B7FF4), blurRadius: 24, offset: Offset(0, 10))])),
+                          style: const TextStyle(fontSize: 68, shadows: [
+                            Shadow(
+                                color: Color(0x809B7FF4),
+                                blurRadius: 24,
+                                offset: Offset(0, 10))
+                          ])),
                     ),
                   ),
                 ],
@@ -170,8 +180,11 @@ class _HomeScreenState extends State<HomeScreen>
 
           const Text('GOOD MORNING',
               style: TextStyle(
-                  fontFamily: 'Syne', fontSize: 13, fontWeight: FontWeight.w600,
-                  color: AppColors.textMuted, letterSpacing: 2)),
+                  fontFamily: 'Syne',
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textMuted,
+                  letterSpacing: 2)),
           const SizedBox(height: 4),
           GradientText(
             'Rise & Conquer ✦',
@@ -185,11 +198,20 @@ class _HomeScreenState extends State<HomeScreen>
           // Stats
           Row(
             children: [
-              _StatPill(value: '${widget.streak}', label: '🔥 Streak', valueColor: AppColors.amber),
+              _StatPill(
+                  value: '${widget.streak}',
+                  label: '🔥 Streak',
+                  valueColor: AppColors.amber),
               const SizedBox(width: 12),
-              _StatPill(value: '${widget.xp}', label: '⚡ XP', valueColor: AppColors.purple),
+              _StatPill(
+                  value: '${widget.xp}',
+                  label: '⚡ XP',
+                  valueColor: AppColors.purple),
               const SizedBox(width: 12),
-              _StatPill(value: '${widget.badgeCount}', label: '🏆 Badges', valueColor: AppColors.mint),
+              _StatPill(
+                  value: '${widget.tasksCompleted}',
+                  label: '✅ Tasks',
+                  valueColor: AppColors.mint),
             ],
           ),
           const SizedBox(height: 28),
@@ -206,7 +228,8 @@ class _StatPill extends StatelessWidget {
   final String value;
   final String label;
   final Color valueColor;
-  const _StatPill({required this.value, required this.label, required this.valueColor});
+  const _StatPill(
+      {required this.value, required this.label, required this.valueColor});
 
   @override
   Widget build(BuildContext context) {
@@ -218,8 +241,10 @@ class _StatPill extends StatelessWidget {
           children: [
             Text(value,
                 style: TextStyle(
-                    fontFamily: 'Syne', fontSize: 22,
-                    fontWeight: FontWeight.w800, color: valueColor)),
+                    fontFamily: 'Syne',
+                    fontSize: 22,
+                    fontWeight: FontWeight.w800,
+                    color: valueColor)),
             const SizedBox(height: 2),
             Text(label,
                 style: const TextStyle(

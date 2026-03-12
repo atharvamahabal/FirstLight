@@ -7,24 +7,26 @@ import '../widgets/common.dart';
 
 class SlotsScreen extends StatefulWidget {
   final void Function(int count) onConfetti;
-  const SlotsScreen({super.key, required this.onConfetti});
+  final VoidCallback? onJackpot;
+  const SlotsScreen({super.key, required this.onConfetti, this.onJackpot});
 
   @override
   State<SlotsScreen> createState() => _SlotsScreenState();
 }
 
-class _SlotsScreenState extends State<SlotsScreen> with TickerProviderStateMixin {
+class _SlotsScreenState extends State<SlotsScreen>
+    with TickerProviderStateMixin {
   bool _spinning = false;
   List<int> _displayed = [0, 1, 2];
   List<int>? _results;
   String? _comboText;
   bool _isJackpot = false;
   bool _showCombo = false;
+  double _dragOffset = 0.0;
 
   // Lever animation
   late AnimationController _leverCtrl;
   late Animation<double> _leverAnim;
-  bool _leverPulled = false;
 
   final List<ScrollController> _scrollCtrls =
       List.generate(3, (_) => ScrollController());
@@ -34,8 +36,8 @@ class _SlotsScreenState extends State<SlotsScreen> with TickerProviderStateMixin
     super.initState();
     _leverCtrl = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 400));
-    _leverAnim = Tween<double>(begin: 0, end: 1).animate(
-        CurvedAnimation(parent: _leverCtrl, curve: Curves.easeInOut));
+    _leverAnim = Tween<double>(begin: 0, end: 1)
+        .animate(CurvedAnimation(parent: _leverCtrl, curve: Curves.easeInOut));
   }
 
   @override
@@ -53,21 +55,13 @@ class _SlotsScreenState extends State<SlotsScreen> with TickerProviderStateMixin
       _spinning = true;
       _showCombo = false;
       _results = null;
-      _leverPulled = true;
     });
-
-    // Lever pull animation
-    await _leverCtrl.forward();
-    await Future.delayed(const Duration(milliseconds: 200));
-    await _leverCtrl.reverse();
-    setState(() => _leverPulled = false);
 
     final rng = Random();
     final picks = List.generate(3, (_) => rng.nextInt(slotSymbols.length));
 
-    for (int r = 0; r < 3; r++) {
-      await Future.delayed(Duration(milliseconds: 400 * r));
-      const itemH = 80.0;
+    const itemH = 80.0;
+    final futures = List.generate(3, (r) async {
       final targetIndex = picks[r] + slotSymbols.length * 4;
       if (_scrollCtrls[r].hasClients) {
         await _scrollCtrls[r].animateTo(
@@ -76,8 +70,10 @@ class _SlotsScreenState extends State<SlotsScreen> with TickerProviderStateMixin
           curve: Curves.easeOutCubic,
         );
       }
+      if (!mounted) return;
       setState(() => _displayed[r] = picks[r]);
-    }
+    });
+    await Future.wait(futures);
 
     await Future.delayed(const Duration(milliseconds: 300));
     _computeCombo(picks);
@@ -88,7 +84,10 @@ class _SlotsScreenState extends State<SlotsScreen> with TickerProviderStateMixin
     await Future.delayed(const Duration(milliseconds: 100));
     setState(() => _showCombo = true);
 
-    if (_isJackpot) widget.onConfetti(80);
+    if (_isJackpot) {
+      widget.onConfetti(80);
+      widget.onJackpot?.call();
+    }
   }
 
   void _computeCombo(List<int> picks) {
@@ -109,12 +108,18 @@ class _SlotsScreenState extends State<SlotsScreen> with TickerProviderStateMixin
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text('Life Slots',
-              style: TextStyle(fontSize: 11, letterSpacing: 3,
-                  color: AppColors.textMuted, fontWeight: FontWeight.w700)),
+              style: TextStyle(
+                  fontSize: 11,
+                  letterSpacing: 3,
+                  color: AppColors.textMuted,
+                  fontWeight: FontWeight.w700)),
           const SizedBox(height: 6),
           const Text('777 Challenge 🎰',
-              style: TextStyle(fontFamily: 'Syne', fontSize: 28,
-                  fontWeight: FontWeight.w800, height: 1.1)),
+              style: TextStyle(
+                  fontFamily: 'Syne',
+                  fontSize: 28,
+                  fontWeight: FontWeight.w800,
+                  height: 1.1)),
           const SizedBox(height: 22),
 
           // Slot machine + lever
@@ -128,13 +133,17 @@ class _SlotsScreenState extends State<SlotsScreen> with TickerProviderStateMixin
                   decoration: BoxDecoration(
                     color: AppColors.amber.withOpacity(0.03),
                     borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: AppColors.amber.withOpacity(0.22)),
+                    border:
+                        Border.all(color: AppColors.amber.withOpacity(0.22)),
                   ),
                   child: Column(
                     children: [
                       const Text('◆  PULL FOR TODAY\'S COMBO  ◆',
-                          style: TextStyle(fontSize: 9, letterSpacing: 3,
-                              color: AppColors.amber, fontWeight: FontWeight.w700)),
+                          style: TextStyle(
+                              fontSize: 9,
+                              letterSpacing: 3,
+                              color: AppColors.amber,
+                              fontWeight: FontWeight.w700)),
                       const SizedBox(height: 16),
                       Row(children: List.generate(3, (r) => _buildReel(r))),
                       const SizedBox(height: 14),
@@ -148,14 +157,19 @@ class _SlotsScreenState extends State<SlotsScreen> with TickerProviderStateMixin
                                   : _isJackpot
                                       ? '🎉 JACKPOT! ${slotNames[_results![0]].toUpperCase()}!'
                                       : '${slotNames[_results![0]]} × ${slotNames[_results![1]]} × ${slotNames[_results![2]]}',
-                          key: ValueKey(_results.toString() + _spinning.toString()),
+                          key: ValueKey(
+                              _results.toString() + _spinning.toString()),
                           style: TextStyle(
-                            fontSize: 13, fontWeight: FontWeight.w600,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
                             color: _isJackpot && !_spinning
                                 ? AppColors.amber
                                 : AppColors.textMuted,
                             shadows: _isJackpot && !_spinning
-                                ? [Shadow(color: AppColors.amber, blurRadius: 12)]
+                                ? [
+                                    Shadow(
+                                        color: AppColors.amber, blurRadius: 12)
+                                  ]
                                 : null,
                           ),
                           textAlign: TextAlign.center,
@@ -191,19 +205,24 @@ class _SlotsScreenState extends State<SlotsScreen> with TickerProviderStateMixin
                       decoration: BoxDecoration(
                         color: AppColors.amber.withOpacity(0.06),
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: AppColors.amber.withOpacity(0.2)),
+                        border:
+                            Border.all(color: AppColors.amber.withOpacity(0.2)),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text('TODAY\'S CHALLENGE',
-                              style: TextStyle(fontSize: 9, letterSpacing: 2,
+                              style: TextStyle(
+                                  fontSize: 9,
+                                  letterSpacing: 2,
                                   color: AppColors.amber)),
                           const SizedBox(height: 8),
                           Text(_comboText!,
                               style: const TextStyle(
-                                  fontFamily: 'Syne', fontSize: 14,
-                                  fontWeight: FontWeight.w700, height: 1.5)),
+                                  fontFamily: 'Syne',
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  height: 1.5)),
                         ],
                       ),
                     ),
@@ -221,7 +240,7 @@ class _SlotsScreenState extends State<SlotsScreen> with TickerProviderStateMixin
     return Expanded(
       child: Container(
         margin: EdgeInsets.only(left: r == 0 ? 0 : 5, right: r == 2 ? 0 : 5),
-        height: 90,
+        height: 115,
         decoration: BoxDecoration(
           color: Colors.black.withOpacity(0.4),
           borderRadius: BorderRadius.circular(14),
@@ -235,7 +254,13 @@ class _SlotsScreenState extends State<SlotsScreen> with TickerProviderStateMixin
           physics: const NeverScrollableScrollPhysics(),
           itemBuilder: (_, i) => SizedBox(
             height: itemH,
-            child: Center(child: Text(items[i], style: const TextStyle(fontSize: 32))),
+            child: Center(
+              child: Text(
+                items[i],
+                style: const TextStyle(fontSize: 30, height: 1.0),
+                textAlign: TextAlign.center,
+              ),
+            ),
           ),
         ),
       ),
@@ -243,24 +268,57 @@ class _SlotsScreenState extends State<SlotsScreen> with TickerProviderStateMixin
   }
 
   Widget _buildLever() {
+    const maxDrag = 70.0;
+    const triggerThreshold = 50.0;
+    const trackHeight = 130.0;
+    const ballSize = 36.0;
+    const stickHeight = 60.0;
+
     return GestureDetector(
-      onTap: _spinning ? null : _pull,
+      onVerticalDragUpdate: _spinning
+          ? null
+          : (details) {
+              setState(() {
+                _dragOffset =
+                    (_dragOffset + details.delta.dy).clamp(0.0, maxDrag);
+                _leverCtrl.value = _dragOffset / maxDrag;
+              });
+            },
+      onVerticalDragEnd: _spinning
+          ? null
+          : (details) {
+              if (_dragOffset >= triggerThreshold) {
+                _leverCtrl.forward().then((_) async {
+                  await Future.delayed(const Duration(milliseconds: 150));
+                  _leverCtrl.reverse();
+                  setState(() => _dragOffset = 0.0);
+                  _pull();
+                });
+              } else {
+                _leverCtrl.reverse();
+                setState(() => _dragOffset = 0.0);
+              }
+            },
       child: SizedBox(
         width: 44,
-        height: 140,
+        height: 200,
         child: AnimatedBuilder(
           animation: _leverAnim,
           builder: (_, __) {
-            final pull = _leverAnim.value; // 0=up, 1=pulled down
+            final pull = _leverAnim.value; // 0.0 = top, 1.0 = bottom
+
+            // How far the ball+stick group has traveled down the track
+            // Ball starts aligned with the top of the track, and ends aligned with the bottom.
+            final travel = pull * trackHeight;
             return Stack(
-              alignment: Alignment.bottomCenter,
+              alignment: Alignment.topCenter,
               children: [
-                // Track
+                // Track groove — fixed position
                 Positioned(
-                  bottom: 0,
+                  top: ballSize / 2, // starts at center of ball when at top
                   child: Container(
                     width: 12,
-                    height: 120,
+                    height: trackHeight,
                     decoration: BoxDecoration(
                       color: AppColors.glass,
                       borderRadius: BorderRadius.circular(6),
@@ -268,31 +326,49 @@ class _SlotsScreenState extends State<SlotsScreen> with TickerProviderStateMixin
                     ),
                   ),
                 ),
-                // Stick
+                // Inner track glow line
                 Positioned(
-                  bottom: 10 + pull * 70,
-                  left: 10,
+                  top: ballSize / 2 + 4,
                   child: Container(
-                    width: 4,
-                    height: 80,
+                    width: 3,
+                    height: trackHeight - 8,
                     decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [AppColors.amber, AppColors.amberDark],
-                      ),
+                      color: Colors.white.withOpacity(0.05),
                       borderRadius: BorderRadius.circular(2),
-                      boxShadow: [BoxShadow(
-                          color: AppColors.amber.withOpacity(0.4), blurRadius: 8)],
                     ),
                   ),
                 ),
-                // Ball handle
+                // Stick — attached below ball, moves with it
+                // Positioned(
+                //   top: travel + ballSize - 4,
+                //   child: Container(
+                //     width: 4,
+                //     height: stickHeight,
+                //     decoration: BoxDecoration(
+                //       gradient: LinearGradient(
+                //         begin: Alignment.topCenter,
+                //         end: Alignment.bottomCenter,
+                //         colors: [
+                //           AppColors.amber,
+                //           AppColors.amberDark,
+                //         ],
+                //       ),
+                //       borderRadius: BorderRadius.circular(2),
+                //       boxShadow: [
+                //         BoxShadow(
+                //           color: AppColors.amber.withOpacity(0.5),
+                //           blurRadius: 8,
+                //         ),
+                //       ],
+                //     ),
+                //   ),
+                // ),
+                // Ball handle — moves down the track
                 Positioned(
-                  top: pull * 70,
+                  top: travel,
                   child: Container(
-                    width: 32,
-                    height: 32,
+                    width: ballSize,
+                    height: ballSize,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: const RadialGradient(
@@ -301,26 +377,45 @@ class _SlotsScreenState extends State<SlotsScreen> with TickerProviderStateMixin
                       ),
                       boxShadow: [
                         BoxShadow(
-                            color: AppColors.amber.withOpacity(0.6),
-                            blurRadius: 12, offset: const Offset(0, 4)),
+                          color: AppColors.amber
+                              .withOpacity(_spinning ? 0.2 : 0.7),
+                          blurRadius: _spinning ? 4 : 18,
+                          offset: const Offset(0, 4),
+                        ),
                       ],
                       border: Border.all(
-                          color: Colors.white.withOpacity(0.2), width: 1.5),
+                        color: Colors.white.withOpacity(0.3),
+                        width: 1.5,
+                      ),
                     ),
                     child: const Center(
-                      child: Text('🎰',
-                          style: TextStyle(fontSize: 14)),
+                      child: Text('🎰', style: TextStyle(fontSize: 15)),
                     ),
                   ),
                 ),
                 // Pull label
                 Positioned(
-                  bottom: -20,
-                  child: Text(
-                    _spinning ? '...' : 'PULL',
-                    style: const TextStyle(
-                        fontSize: 8, letterSpacing: 1.5,
-                        color: AppColors.amber, fontWeight: FontWeight.w700),
+                  bottom: 0,
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.keyboard_arrow_down_rounded,
+                        size: 14,
+                        color: _spinning
+                            ? AppColors.textDim
+                            : AppColors.amber.withOpacity(0.8),
+                      ),
+                      Text(
+                        _spinning ? '...' : 'PULL',
+                        style: TextStyle(
+                          fontSize: 8,
+                          letterSpacing: 1.5,
+                          color:
+                              _spinning ? AppColors.textDim : AppColors.amber,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],

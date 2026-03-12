@@ -2,7 +2,7 @@
 
 
 
-
+IGNORE BELOW LINES TILL 43
 IN spin the wheel it is written as spin the whell in lght font looks good but can you make center of the wheel make a good UX it should look like a button which can be pressed 
 just a acute small button which will look good in between spin 
 when the timer goes in breathe 1 min a time should start and replace with slow breathing like 10 seconds breathe in 5 seconds release 4 sets of these 
@@ -41,3 +41,24 @@ on home page just show spin your day
 and once user goes inside spin your day show below 4 options 
 remove 777 slots from home page just add spin your day 
 whe  user goes inside spin your day show the bottom footer with all 5 pages icon 
+
+Work on below items 
+the chicken inside egg can you make it hover little bit faster it is not visible it should move 
+little bit on idle screen 
+remove star in front of rise and conquer 
+make good morning in yellowish shade just like sunrise but dim as user is looking at this 
+in morning 
+
+
+make a progress store what the users has done and show progress till now 
+also make sure the achievemtns is mapped correctly to spin and 777 and ritual 
+so user should get to know how many tasks he has done it will motivate him 
+
+also it looks like made with claude make it more natural like developer has created it 
+add ribons in confetti 
+also remove hard coded values for trophies and xp i need to click on reset reverytime 
+are there any stored numbers or trophies just remove like strea xp and badges 
+
+Also do you think it is good and major changes needed in current screen basically user should go 
+from one screen to another in single flow without thinking is the UI/UX clear he should not be 
+overwhelemed or confused 
