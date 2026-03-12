@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>DAWNRISE — Your Morning Universe</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg: #08080f;
@@ -28,31 +28,13 @@
 
   body {
     background: var(--bg);
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
     color: var(--text);
     min-height: 100vh;
     overflow-x: hidden;
     overflow-y: auto;
     position: relative;
   }
-
-  /* ─── AMBIENT ORBS ─── */
-  .orb {
-    position: fixed;
-    border-radius: 50%;
-    filter: blur(90px);
-    opacity: 0.35;
-    pointer-events: none;
-    z-index: 0;
-    transition: all 1.2s ease;
-  }
-  .orb-1 { width: 420px; height: 420px; background: radial-gradient(circle, #7c3aed, transparent); top: -100px; left: -100px; animation: orbFloat1 12s ease-in-out infinite; }
-  .orb-2 { width: 350px; height: 350px; background: radial-gradient(circle, #f5a623, transparent); bottom: -80px; right: -80px; animation: orbFloat2 10s ease-in-out infinite; }
-  .orb-3 { width: 280px; height: 280px; background: radial-gradient(circle, #f472b6, transparent); top: 40%; left: 50%; transform: translate(-50%,-50%); opacity: 0.18; animation: orbFloat3 14s ease-in-out infinite; }
-
-  @keyframes orbFloat1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(40px,30px)} }
-  @keyframes orbFloat2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-30px,-40px)} }
-  @keyframes orbFloat3 { 0%,100%{transform:translate(-50%,-50%) scale(1)} 50%{transform:translate(-50%,-50%) scale(1.2)} }
 
   /* ─── APP CONTAINER ─── */
   #app {
@@ -685,7 +667,7 @@
     transition: all 0.2s;
     padding: 6px 12px;
     border-radius: 12px;
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
     min-width: 56px;
   }
   .nav-btn .nav-icon { font-size: 20px; transition: transform 0.2s; }
@@ -890,10 +872,6 @@
 </style>
 </head>
 <body>
-
-<div class="orb orb-1"></div>
-<div class="orb orb-2"></div>
-<div class="orb orb-3"></div>
 
 <div id="app">
 
@@ -1290,7 +1268,7 @@ function drawWheel(angle) {
     ctx.rotate(start + arc/2);
     ctx.translate(r * 0.35, 0);
     ctx.rotate(Math.PI/2);
-    ctx.font = '600 9px "DM Sans", sans-serif';
+    ctx.font = '600 9px "Inter", system-ui, -apple-system, Segoe UI, Roboto, sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillStyle = 'rgba(255,255,255,0.7)';
