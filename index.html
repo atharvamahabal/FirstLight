@@ -1,1 +1,1161 @@
-test
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>DAWNRISE — Your Morning Universe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #08080f;
+    --bg2: #0e0e1a;
+    --glass: rgba(255,255,255,0.045);
+    --glass-border: rgba(255,255,255,0.09);
+    --purple: #9b7ff4;
+    --purple-dim: rgba(155,127,244,0.15);
+    --amber: #f5a623;
+    --amber-dim: rgba(245,166,35,0.12);
+    --mint: #3de8a0;
+    --mint-dim: rgba(61,232,160,0.12);
+    --pink: #f472b6;
+    --text: #eef0f8;
+    --text-muted: rgba(238,240,248,0.45);
+    --text-dim: rgba(238,240,248,0.25);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    background: var(--bg);
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text);
+    min-height: 100vh;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* ─── AMBIENT ORBS ─── */
+  .orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(90px);
+    opacity: 0.35;
+    pointer-events: none;
+    z-index: 0;
+    transition: all 1.2s ease;
+  }
+  .orb-1 { width: 420px; height: 420px; background: radial-gradient(circle, #7c3aed, transparent); top: -100px; left: -100px; animation: orbFloat1 12s ease-in-out infinite; }
+  .orb-2 { width: 350px; height: 350px; background: radial-gradient(circle, #f5a623, transparent); bottom: -80px; right: -80px; animation: orbFloat2 10s ease-in-out infinite; }
+  .orb-3 { width: 280px; height: 280px; background: radial-gradient(circle, #f472b6, transparent); top: 40%; left: 50%; transform: translate(-50%,-50%); opacity: 0.18; animation: orbFloat3 14s ease-in-out infinite; }
+
+  @keyframes orbFloat1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(40px,30px)} }
+  @keyframes orbFloat2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-30px,-40px)} }
+  @keyframes orbFloat3 { 0%,100%{transform:translate(-50%,-50%) scale(1)} 50%{transform:translate(-50%,-50%) scale(1.2)} }
+
+  /* ─── APP CONTAINER ─── */
+  #app {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 420px;
+    margin: 0 auto;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* ─── SCREENS ─── */
+  .screen {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 24px 40px;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(60px);
+    transition: opacity 0.55s cubic-bezier(0.4,0,0.2,1), transform 0.55s cubic-bezier(0.4,0,0.2,1);
+  }
+  .screen.active {
+    opacity: 1;
+    pointer-events: all;
+    transform: translateX(0);
+  }
+  .screen.exit {
+    opacity: 0;
+    transform: translateX(-60px);
+  }
+
+  /* ─── NAV DOTS ─── */
+  .nav-dots {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 100;
+  }
+  .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  .dot.active {
+    width: 22px;
+    border-radius: 3px;
+    background: var(--purple);
+    box-shadow: 0 0 10px var(--purple);
+  }
+
+  /* ─── GLASS CARD ─── */
+  .glass {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+
+  /* ─── SCREEN 1: HOME ─── */
+  #screen-home {
+    gap: 0;
+  }
+  .home-time-block {
+    text-align: center;
+    margin-bottom: 8px;
+  }
+  .home-time {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(64px, 18vw, 88px);
+    font-weight: 800;
+    line-height: 1;
+    background: linear-gradient(135deg, #fff 30%, var(--amber) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -3px;
+    filter: drop-shadow(0 0 30px rgba(245,166,35,0.3));
+  }
+  .home-date {
+    font-size: 13px;
+    color: var(--text-muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  .pet-container {
+    position: relative;
+    margin: 20px 0 16px;
+    cursor: pointer;
+  }
+  .pet-glow {
+    position: absolute;
+    width: 130px; height: 130px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(155,127,244,0.4), transparent 70%);
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    animation: petPulse 3s ease-in-out infinite;
+  }
+  @keyframes petPulse { 0%,100%{transform:translate(-50%,-50%) scale(1); opacity:0.6} 50%{transform:translate(-50%,-50%) scale(1.3); opacity:1} }
+
+  .pet-emoji {
+    font-size: 72px;
+    display: block;
+    animation: petFloat 4s ease-in-out infinite;
+    position: relative;
+    z-index: 2;
+    filter: drop-shadow(0 10px 30px rgba(155,127,244,0.5));
+    transition: transform 0.2s;
+  }
+  .pet-emoji:active { transform: scale(0.88); }
+  @keyframes petFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+
+  .greeting {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-align: center;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+  .greeting-name {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(26px, 7vw, 34px);
+    font-weight: 800;
+    text-align: center;
+    margin-bottom: 24px;
+    background: linear-gradient(135deg, var(--text) 60%, var(--purple) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .home-stats {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 28px;
+    width: 100%;
+  }
+  .stat-pill {
+    flex: 1;
+    padding: 12px 10px;
+    text-align: center;
+    border-radius: 14px;
+  }
+  .stat-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    display: block;
+  }
+  .stat-label {
+    font-size: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 2px;
+  }
+  .stat-amber .stat-num { color: var(--amber); }
+  .stat-purple .stat-num { color: var(--purple); }
+  .stat-mint .stat-num { color: var(--mint); }
+
+  .btn-primary {
+    width: 100%;
+    padding: 18px;
+    border-radius: 16px;
+    border: none;
+    background: linear-gradient(135deg, #7c3aed, #9b7ff4);
+    color: white;
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    box-shadow: 0 8px 32px rgba(124,58,237,0.4), 0 0 0 1px rgba(155,127,244,0.2);
+    transition: all 0.25s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-primary::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .btn-primary:hover::after, .btn-primary:active::after { opacity: 1; }
+  .btn-primary:active { transform: scale(0.98); }
+
+  /* ─── SCREEN 2: SPIN WHEEL ─── */
+  #screen-spin { gap: 0; }
+
+  .screen-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    align-self: flex-start;
+  }
+  .screen-heading {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(28px, 7vw, 36px);
+    font-weight: 800;
+    align-self: flex-start;
+    margin-bottom: 24px;
+    line-height: 1.1;
+  }
+
+  .wheel-wrap {
+    position: relative;
+    width: 280px;
+    height: 280px;
+    margin: 0 auto 24px;
+    cursor: pointer;
+  }
+  .wheel-pointer {
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0; height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 22px solid var(--amber);
+    filter: drop-shadow(0 0 8px var(--amber));
+    z-index: 10;
+  }
+  #wheel-canvas {
+    width: 280px;
+    height: 280px;
+    border-radius: 50%;
+    box-shadow: 0 0 60px rgba(124,58,237,0.4), 0 0 120px rgba(245,166,35,0.15), 0 0 0 3px rgba(155,127,244,0.3);
+    transition: box-shadow 0.3s;
+  }
+  #wheel-canvas:active { box-shadow: 0 0 80px rgba(124,58,237,0.6), 0 0 140px rgba(245,166,35,0.25), 0 0 0 3px rgba(155,127,244,0.5); }
+
+  .wheel-hint {
+    font-size: 12px;
+    color: var(--text-dim);
+    text-align: center;
+    margin-bottom: 20px;
+    letter-spacing: 1px;
+  }
+
+  .task-result {
+    width: 100%;
+    padding: 18px 20px;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-height: 72px;
+    transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  .task-result.show {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  .task-icon { font-size: 28px; flex-shrink: 0; }
+  .task-text { flex: 1; }
+  .task-cat { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); }
+  .task-name { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; margin-top: 2px; }
+
+  .btn-secondary {
+    width: 100%;
+    padding: 15px;
+    border-radius: 14px;
+    border: 1px solid var(--glass-border);
+    background: var(--glass);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 12px;
+    backdrop-filter: blur(10px);
+  }
+  .btn-secondary:hover { background: rgba(255,255,255,0.07); }
+
+  /* ─── SCREEN 3: 777 SLOTS ─── */
+  #screen-slots { gap: 0; }
+
+  .slot-machine {
+    width: 100%;
+    padding: 24px 20px;
+    border-radius: 24px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(245,166,35,0.2);
+    background: rgba(245,166,35,0.03);
+  }
+  .slot-label {
+    text-align: center;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--amber);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .slot-reels {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+  .reel {
+    flex: 1;
+    height: 90px;
+    border-radius: 14px;
+    background: rgba(0,0,0,0.4);
+    border: 1px solid var(--glass-border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+  }
+  .reel-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: transform 0s;
+  }
+  .reel-item {
+    font-size: 30px;
+    height: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .reel.spinning .reel-inner {
+    animation: reelSpin 0.08s linear infinite;
+  }
+  @keyframes reelSpin {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-90px); }
+  }
+  .slot-result-text {
+    text-align: center;
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    min-height: 20px;
+    transition: all 0.3s;
+  }
+  .slot-result-text.jackpot { color: var(--amber); text-shadow: 0 0 20px var(--amber); }
+
+  .btn-amber {
+    width: 100%;
+    padding: 18px;
+    border-radius: 16px;
+    border: none;
+    background: linear-gradient(135deg, #d97706, #f5a623);
+    color: #0a0600;
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    cursor: pointer;
+    box-shadow: 0 8px 32px rgba(245,166,35,0.35);
+    transition: all 0.25s ease;
+  }
+  .btn-amber:active { transform: scale(0.98); }
+
+  .combo-card {
+    width: 100%;
+    padding: 16px 18px;
+    border-radius: 16px;
+    margin-top: 14px;
+    min-height: 64px;
+    border: 1px solid rgba(245,166,35,0.2);
+    background: rgba(245,166,35,0.06);
+    opacity: 0;
+    transform: translateY(8px);
+    transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .combo-card.show { opacity: 1; transform: translateY(0); }
+  .combo-title { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--amber); }
+  .combo-desc { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; margin-top: 4px; }
+
+  /* ─── SCREEN 4: RITUAL ─── */
+  #screen-ritual { gap: 0; justify-content: flex-start; padding-top: 52px; }
+
+  .progress-bar-wrap {
+    width: 100%;
+    margin-bottom: 24px;
+  }
+  .progress-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+  }
+  .progress-track {
+    height: 5px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: linear-gradient(90deg, var(--purple), var(--mint));
+    box-shadow: 0 0 12px var(--purple);
+    transition: width 0.6s cubic-bezier(0.34,1.56,0.64,1);
+    width: 0%;
+  }
+
+  .ritual-list {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex: 1;
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .ritual-list::-webkit-scrollbar { display: none; }
+
+  .ritual-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 15px 16px;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 1px solid var(--glass-border);
+    background: var(--glass);
+  }
+  .ritual-item.done {
+    border-color: rgba(61,232,160,0.25);
+    background: rgba(61,232,160,0.05);
+  }
+  .ritual-check {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    border: 2px solid var(--glass-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.35s cubic-bezier(0.34,1.56,0.64,1);
+    font-size: 13px;
+  }
+  .ritual-item.done .ritual-check {
+    background: var(--mint);
+    border-color: var(--mint);
+    box-shadow: 0 0 14px var(--mint);
+    color: #0a1a12;
+  }
+  .ritual-info { flex: 1; }
+  .ritual-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    transition: color 0.3s;
+  }
+  .ritual-item.done .ritual-name { color: var(--mint); text-decoration: line-through; opacity: 0.7; }
+  .ritual-time {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+  .ritual-emoji { font-size: 20px; flex-shrink: 0; }
+
+  /* ─── SCREEN 5: ACHIEVEMENTS ─── */
+  #screen-achievements { gap: 0; justify-content: flex-start; padding-top: 52px; }
+
+  .badges-grid {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    flex: 1;
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .badges-grid::-webkit-scrollbar { display: none; }
+
+  .badge-card {
+    padding: 16px 10px;
+    border-radius: 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .badge-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 18px;
+    background: inherit;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .badge-card:active { transform: scale(0.94); }
+  .badge-card:hover { transform: translateY(-3px); }
+
+  .badge-icon { font-size: 30px; position: relative; z-index: 1; }
+  .badge-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    text-align: center;
+    letter-spacing: 0.5px;
+    line-height: 1.3;
+    position: relative; z-index: 1;
+  }
+  .badge-tier {
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    position: relative; z-index: 1;
+  }
+
+  .badge-purple { background: rgba(155,127,244,0.1); border: 1px solid rgba(155,127,244,0.2); }
+  .badge-purple .badge-tier { color: var(--purple); }
+  .badge-purple:hover { box-shadow: 0 8px 30px rgba(155,127,244,0.2); }
+
+  .badge-amber { background: rgba(245,166,35,0.08); border: 1px solid rgba(245,166,35,0.2); }
+  .badge-amber .badge-tier { color: var(--amber); }
+  .badge-amber:hover { box-shadow: 0 8px 30px rgba(245,166,35,0.2); }
+
+  .badge-mint { background: rgba(61,232,160,0.08); border: 1px solid rgba(61,232,160,0.2); }
+  .badge-mint .badge-tier { color: var(--mint); }
+  .badge-mint:hover { box-shadow: 0 8px 30px rgba(61,232,160,0.2); }
+
+  .badge-pink { background: rgba(244,114,182,0.08); border: 1px solid rgba(244,114,182,0.2); }
+  .badge-pink .badge-tier { color: var(--pink); }
+  .badge-pink:hover { box-shadow: 0 8px 30px rgba(244,114,182,0.2); }
+
+  .badge-locked { opacity: 0.3; filter: grayscale(1); }
+  .badge-locked:hover { transform: none; box-shadow: none; }
+
+  .badge-glow {
+    position: absolute;
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+  }
+  .badge-purple .badge-glow { background: radial-gradient(circle, rgba(155,127,244,0.4), transparent); }
+  .badge-amber .badge-glow { background: radial-gradient(circle, rgba(245,166,35,0.4), transparent); }
+  .badge-mint .badge-glow { background: radial-gradient(circle, rgba(61,232,160,0.4), transparent); }
+  .badge-card:not(.badge-locked):hover .badge-glow { opacity: 1; }
+
+  /* ─── CONFETTI ─── */
+  .confetti-piece {
+    position: fixed;
+    width: 8px; height: 8px;
+    border-radius: 2px;
+    pointer-events: none;
+    z-index: 999;
+    animation: confettiFall 1.4s ease-in forwards;
+  }
+  @keyframes confettiFall {
+    0% { transform: translate(0,0) rotate(0deg); opacity: 1; }
+    100% { transform: translate(var(--dx), var(--dy)) rotate(720deg); opacity: 0; }
+  }
+
+  /* ─── BOTTOM NAV ─── */
+  .bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 420px;
+    padding: 12px 20px 24px;
+    display: flex;
+    justify-content: space-around;
+    background: linear-gradient(to top, rgba(8,8,15,0.98), rgba(8,8,15,0.7));
+    backdrop-filter: blur(20px);
+    z-index: 50;
+    border-top: 1px solid var(--glass-border);
+  }
+  .nav-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.2s;
+    padding: 6px 12px;
+    border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
+    min-width: 56px;
+  }
+  .nav-btn .nav-icon { font-size: 20px; transition: transform 0.2s; }
+  .nav-btn .nav-label { font-size: 9px; letter-spacing: 1px; text-transform: uppercase; font-weight: 500; }
+  .nav-btn.active { color: var(--purple); }
+  .nav-btn.active .nav-icon { transform: scale(1.15); filter: drop-shadow(0 0 6px var(--purple)); }
+  .nav-btn:hover { color: var(--text-muted); }
+</style>
+</head>
+<body>
+
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<div id="app">
+
+  <!-- ── SCREEN 1: HOME ── -->
+  <div class="screen active" id="screen-home">
+    <div class="home-time-block">
+      <div class="home-time" id="clock">06:41</div>
+      <div class="home-date" id="date-display">WEDNESDAY · MARCH 11</div>
+    </div>
+
+    <div class="pet-container" onclick="petTap()">
+      <div class="pet-glow"></div>
+      <span class="pet-emoji" id="pet">🐣</span>
+    </div>
+
+    <div class="greeting">Good Morning</div>
+    <div class="greeting-name">Rise & Conquer ✦</div>
+
+    <div class="home-stats">
+      <div class="glass stat-pill stat-amber">
+        <span class="stat-num">7</span>
+        <div class="stat-label">🔥 Streak</div>
+      </div>
+      <div class="glass stat-pill stat-purple">
+        <span class="stat-num">340</span>
+        <div class="stat-label">⚡ XP</div>
+      </div>
+      <div class="glass stat-pill stat-mint">
+        <span class="stat-num">12</span>
+        <div class="stat-label">🏆 Badges</div>
+      </div>
+    </div>
+
+    <button class="btn-primary" onclick="goTo(1)">✦ SPIN YOUR DAY</button>
+    <button class="btn-secondary" onclick="goTo(2)" style="margin-top:10px;">🎰 Try 777 Slots</button>
+  </div>
+
+  <!-- ── SCREEN 2: SPIN WHEEL ── -->
+  <div class="screen" id="screen-spin">
+    <div class="screen-title">Daily Challenge</div>
+    <div class="screen-heading">Spin the<br>Wheel 🎡</div>
+
+    <div class="wheel-wrap" onclick="spinWheel()">
+      <div class="wheel-pointer"></div>
+      <canvas id="wheel-canvas" width="280" height="280"></canvas>
+    </div>
+
+    <div class="wheel-hint">TAP THE WHEEL TO SPIN</div>
+
+    <div class="glass task-result" id="task-result">
+      <span class="task-icon" id="task-icon">🎯</span>
+      <div class="task-text">
+        <div class="task-cat" id="task-cat">CATEGORY</div>
+        <div class="task-name" id="task-name">Spin to reveal your challenge!</div>
+      </div>
+    </div>
+
+    <button class="btn-secondary" onclick="markTaskDone()" style="margin-top:14px;">✓ Mark as Done (+50 XP)</button>
+  </div>
+
+  <!-- ── SCREEN 3: 777 SLOTS ── -->
+  <div class="screen" id="screen-slots">
+    <div class="screen-title">Life Slots</div>
+    <div class="screen-heading">777<br>Challenge 🎰</div>
+
+    <div class="slot-machine glass">
+      <div class="slot-label">◆ PULL FOR TODAY'S COMBO ◆</div>
+      <div class="slot-reels">
+        <div class="reel glass" id="reel-1"><div class="reel-inner" id="reel-inner-1"></div></div>
+        <div class="reel glass" id="reel-2"><div class="reel-inner" id="reel-inner-2"></div></div>
+        <div class="reel glass" id="reel-3"><div class="reel-inner" id="reel-inner-3"></div></div>
+      </div>
+      <div class="slot-result-text" id="slot-result">Your life combo awaits...</div>
+    </div>
+
+    <button class="btn-amber" onclick="pullSlots()">🎰 PULL THE LEVER</button>
+
+    <div class="glass combo-card" id="combo-card">
+      <div class="combo-title">TODAY'S CHALLENGE</div>
+      <div class="combo-desc" id="combo-desc">—</div>
+    </div>
+  </div>
+
+  <!-- ── SCREEN 4: RITUAL ── -->
+  <div class="screen" id="screen-ritual">
+    <div class="screen-title">Morning Ritual</div>
+    <div class="screen-heading">Your Flow<br>Today 🌅</div>
+
+    <div class="progress-bar-wrap">
+      <div class="progress-meta">
+        <span id="progress-text">0 / 6 done</span>
+        <span id="progress-mins">18 mins total</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+    </div>
+
+    <div class="ritual-list" id="ritual-list"></div>
+  </div>
+
+  <!-- ── SCREEN 5: ACHIEVEMENTS ── -->
+  <div class="screen" id="screen-achievements">
+    <div class="screen-title">Trophy Room</div>
+    <div class="screen-heading">Your<br>Achievements 🏆</div>
+
+    <div class="badges-grid" id="badges-grid"></div>
+  </div>
+
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="nav-btn active" onclick="goTo(0)" id="nav-0"><span class="nav-icon">🌅</span><span class="nav-label">Home</span></button>
+  <button class="nav-btn" onclick="goTo(1)" id="nav-1"><span class="nav-icon">🎡</span><span class="nav-label">Spin</span></button>
+  <button class="nav-btn" onclick="goTo(2)" id="nav-2"><span class="nav-icon">🎰</span><span class="nav-label">777</span></button>
+  <button class="nav-btn" onclick="goTo(3)" id="nav-3"><span class="nav-icon">✅</span><span class="nav-label">Ritual</span></button>
+  <button class="nav-btn" onclick="goTo(4)" id="nav-4"><span class="nav-icon">🏆</span><span class="nav-label">Trophies</span></button>
+</nav>
+
+<script>
+// ─── CLOCK ───
+function updateClock() {
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2,'0');
+  const m = String(now.getMinutes()).padStart(2,'0');
+  document.getElementById('clock').textContent = h + ':' + m;
+  const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  document.getElementById('date-display').textContent =
+    days[now.getDay()].toUpperCase() + ' · ' + months[now.getMonth()].toUpperCase() + ' ' + now.getDate();
+}
+updateClock(); setInterval(updateClock, 10000);
+
+// ─── NAVIGATION ───
+let currentScreen = 0;
+const screens = ['screen-home','screen-spin','screen-slots','screen-ritual','screen-achievements'];
+function goTo(idx) {
+  const cur = document.getElementById(screens[currentScreen]);
+  cur.classList.remove('active');
+  cur.classList.add('exit');
+  setTimeout(() => cur.classList.remove('exit'), 600);
+
+  document.querySelectorAll('.nav-btn').forEach((b,i) => b.classList.toggle('active', i === idx));
+
+  const next = document.getElementById(screens[idx]);
+  next.style.transitionDelay = '0.05s';
+  next.classList.add('active');
+  setTimeout(() => next.style.transitionDelay = '0s', 600);
+  currentScreen = idx;
+}
+
+// ─── PET TAP ───
+function petTap() {
+  const pet = document.getElementById('pet');
+  const reactions = ['😄','🥳','💪','✨','🎉','💫'];
+  const orig = pet.textContent;
+  pet.textContent = reactions[Math.floor(Math.random()*reactions.length)];
+  setTimeout(() => pet.textContent = orig, 800);
+  spawnConfetti(5);
+}
+
+// ─── WHEEL ───
+const segments = [
+  { label: '10 Pushups', emoji: '💪', cat: 'BODY', color: '#7c3aed' },
+  { label: 'Cold Splash', emoji: '💧', cat: 'BODY', color: '#2563eb' },
+  { label: 'Read 1 Page', emoji: '📖', cat: 'MIND', color: '#059669' },
+  { label: 'Write 1 Thought', emoji: '✍️', cat: 'MIND', color: '#3de8a0' },
+  { label: 'Breathe 1 min', emoji: '🧘', cat: 'CALM', color: '#9b7ff4' },
+  { label: 'No Phone 30min', emoji: '📵', cat: 'CALM', color: '#db2777' },
+  { label: 'Work 15 mins', emoji: '🎯', cat: 'HUSTLE', color: '#f5a623' },
+  { label: 'Wild Card!', emoji: '🎲', cat: 'WILD', color: '#f472b6' },
+];
+
+let wheelAngle = 0;
+let isSpinning = false;
+
+function drawWheel(angle) {
+  const canvas = document.getElementById('wheel-canvas');
+  const ctx = canvas.getContext('2d');
+  const cx = 140, cy = 140, r = 135;
+  const arc = (2 * Math.PI) / segments.length;
+  ctx.clearRect(0,0,280,280);
+
+  segments.forEach((seg, i) => {
+    const start = angle + i * arc;
+    const end = start + arc;
+
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, start, end);
+    ctx.closePath();
+    ctx.fillStyle = seg.color + '33';
+    ctx.fill();
+    ctx.strokeStyle = seg.color + '66';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // emoji
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(start + arc/2);
+    ctx.translate(r * 0.65, 0);
+    ctx.font = '22px serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(seg.emoji, 0, 0);
+    ctx.restore();
+
+    // label
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(start + arc/2);
+    ctx.translate(r * 0.35, 0);
+    ctx.rotate(Math.PI/2);
+    ctx.font = '600 9px "DM Sans", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = 'rgba(255,255,255,0.7)';
+    const words = seg.label.split(' ');
+    words.forEach((w, wi) => ctx.fillText(w, 0, (wi - (words.length-1)/2) * 11));
+    ctx.restore();
+  });
+
+  // center circle
+  ctx.beginPath();
+  ctx.arc(cx, cy, 22, 0, 2*Math.PI);
+  ctx.fillStyle = '#0e0e1a';
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(155,127,244,0.5)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.font = '16px serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('✦', cx, cy);
+}
+
+drawWheel(0);
+
+function spinWheel() {
+  if (isSpinning) return;
+  isSpinning = true;
+  document.getElementById('task-result').classList.remove('show');
+
+  const spins = (Math.random() * 5 + 5) * 2 * Math.PI;
+  const duration = 3500;
+  const start = performance.now();
+  const startAngle = wheelAngle;
+  const targetAngle = startAngle + spins;
+
+  function animate(t) {
+    const elapsed = t - start;
+    const progress = Math.min(elapsed / duration, 1);
+    const ease = 1 - Math.pow(1 - progress, 4);
+    wheelAngle = startAngle + (targetAngle - startAngle) * ease;
+    drawWheel(wheelAngle);
+
+    if (progress < 1) { requestAnimationFrame(animate); }
+    else {
+      isSpinning = false;
+      showResult();
+    }
+  }
+  requestAnimationFrame(animate);
+}
+
+function showResult() {
+  const arc = (2 * Math.PI) / segments.length;
+  const normalised = (((-wheelAngle - Math.PI/2) % (2*Math.PI)) + (2*Math.PI)) % (2*Math.PI);
+  const idx = Math.floor(normalised / arc) % segments.length;
+  const seg = segments[idx];
+
+  document.getElementById('task-icon').textContent = seg.emoji;
+  document.getElementById('task-cat').textContent = seg.cat;
+  document.getElementById('task-name').textContent = seg.label;
+
+  const card = document.getElementById('task-result');
+  card.style.borderColor = seg.color + '44';
+  card.style.background = seg.color + '11';
+  setTimeout(() => card.classList.add('show'), 50);
+  spawnConfetti(12);
+}
+
+function markTaskDone() {
+  spawnConfetti(20);
+  petTap();
+  goTo(0);
+}
+
+// ─── SLOTS ───
+const slotSymbols = ['🏋️','📚','💰','🧘','🤝','🎨'];
+const slotNames = ['Fitness','Learning','Money','Calm','Social','Creativity'];
+const combos = {
+  'Fitness+Learning+Calm': 'Walk to a new spot while listening to a podcast 🎧',
+  'Fitness+Fitness+Fitness': '🎉 JACKPOT! 30-min workout + cold shower!',
+  'Learning+Learning+Learning': '🎉 JACKPOT! Read for 1 hour straight!',
+  'Money+Creativity+Calm': 'Sketch your dream life for 10 mins 🎨',
+  'Social+Fitness+Learning': 'Call a friend while you walk 🚶',
+  'Calm+Calm+Calm': '🎉 JACKPOT! Full meditation morning!',
+  'Creativity+Money+Learning': 'Work on a passion project for 20 mins 💡',
+};
+
+let slotsSpinning = false;
+function initReels() {
+  for (let r = 1; r <= 3; r++) {
+    const inner = document.getElementById('reel-inner-' + r);
+    inner.innerHTML = '';
+    [...slotSymbols, ...slotSymbols, ...slotSymbols].forEach(s => {
+      const div = document.createElement('div');
+      div.className = 'reel-item';
+      div.textContent = s;
+      inner.appendChild(div);
+    });
+  }
+}
+initReels();
+
+function pullSlots() {
+  if (slotsSpinning) return;
+  slotsSpinning = true;
+  document.getElementById('combo-card').classList.remove('show');
+  document.getElementById('slot-result').textContent = 'Spinning...';
+  document.getElementById('slot-result').className = 'slot-result-text';
+
+  const results = [];
+  [1,2,3].forEach((r, ri) => {
+    const reel = document.getElementById('reel-' + r);
+    const inner = document.getElementById('reel-inner-' + r);
+    const idx = Math.floor(Math.random() * slotSymbols.length);
+    results.push(idx);
+    reel.classList.add('spinning');
+
+    setTimeout(() => {
+      reel.classList.remove('spinning');
+      inner.innerHTML = '';
+      const div = document.createElement('div');
+      div.className = 'reel-item';
+      div.textContent = slotSymbols[idx];
+      div.style.fontSize = '36px';
+      inner.appendChild(div);
+
+      if (ri === 2) {
+        setTimeout(() => showSlotResult(results), 200);
+      }
+    }, 1000 + ri * 400);
+  });
+}
+
+function showSlotResult(results) {
+  slotsSpinning = false;
+  const names = results.map(i => slotNames[i]);
+  const key = names.join('+');
+  const isJackpot = results[0] === results[1] && results[1] === results[2];
+  const combo = combos[key] || combos[names.sort().join('+')] ||
+    `Do something related to ${names[0]} AND ${names[1]} today! 💪`;
+
+  const resultEl = document.getElementById('slot-result');
+  if (isJackpot) {
+    resultEl.textContent = '🎉 JACKPOT! ' + names[0].toUpperCase() + ' TRIPLE!';
+    resultEl.className = 'slot-result-text jackpot';
+    spawnConfetti(30);
+  } else {
+    resultEl.textContent = names[0] + ' × ' + names[1] + ' × ' + names[2];
+  }
+  document.getElementById('combo-desc').textContent = combo;
+  setTimeout(() => document.getElementById('combo-card').classList.add('show'), 100);
+}
+
+// ─── RITUAL ───
+const rituals = [
+  { emoji: '💧', name: 'Drink a glass of water', time: '1 min' },
+  { emoji: '🧘', name: 'Breathe deeply', time: '2 mins' },
+  { emoji: '✍️', name: 'Write one sentence', time: '3 mins' },
+  { emoji: '💪', name: '10 pushups', time: '2 mins' },
+  { emoji: '🎯', name: "Review today's goal", time: '2 mins' },
+  { emoji: '🌤️', name: 'Look outside', time: '1 min' },
+];
+
+let ritualDone = new Set();
+
+function renderRitual() {
+  const list = document.getElementById('ritual-list');
+  list.innerHTML = '';
+  rituals.forEach((r, i) => {
+    const done = ritualDone.has(i);
+    const div = document.createElement('div');
+    div.className = 'ritual-item glass' + (done ? ' done' : '');
+    div.innerHTML = `
+      <div class="ritual-check">${done ? '✓' : ''}</div>
+      <div class="ritual-info">
+        <div class="ritual-name">${r.name}</div>
+        <div class="ritual-time">${r.time}</div>
+      </div>
+      <span class="ritual-emoji">${r.emoji}</span>
+    `;
+    div.onclick = () => toggleRitual(i);
+    list.appendChild(div);
+  });
+
+  const pct = (ritualDone.size / rituals.length) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-text').textContent = ritualDone.size + ' / ' + rituals.length + ' done';
+  if (ritualDone.size === rituals.length) spawnConfetti(25);
+}
+
+function toggleRitual(i) {
+  if (ritualDone.has(i)) ritualDone.delete(i);
+  else { ritualDone.add(i); spawnConfetti(6); }
+  renderRitual();
+}
+renderRitual();
+
+// ─── ACHIEVEMENTS ───
+const badges = [
+  { icon: '🔥', name: 'First Flame', tier: 'BRONZE', color: 'badge-amber' },
+  { icon: '⚡', name: '7-Day Streak', tier: 'SILVER', color: 'badge-purple' },
+  { icon: '💪', name: 'Body Warrior', tier: 'GOLD', color: 'badge-amber' },
+  { icon: '🧘', name: 'Zen Master', tier: 'SILVER', color: 'badge-mint' },
+  { icon: '🎯', name: 'Hustle King', tier: 'BRONZE', color: 'badge-purple' },
+  { icon: '🌅', name: 'Early Bird', tier: 'GOLD', color: 'badge-amber' },
+  { icon: '🎰', name: 'Lucky 777', tier: 'RARE', color: 'badge-pink' },
+  { icon: '🏆', name: '30-Day Legend', tier: 'DIAMOND', color: 'badge-purple', locked: true },
+  { icon: '💎', name: 'Elite Mind', tier: 'DIAMOND', color: 'badge-mint', locked: true },
+];
+
+function renderBadges() {
+  const grid = document.getElementById('badges-grid');
+  grid.innerHTML = '';
+  badges.forEach(b => {
+    const div = document.createElement('div');
+    div.className = `badge-card ${b.color}` + (b.locked ? ' badge-locked' : '');
+    div.innerHTML = `
+      <div class="badge-glow"></div>
+      <div class="badge-icon">${b.icon}</div>
+      <div class="badge-name">${b.name}</div>
+      <div class="badge-tier">${b.tier}</div>
+    `;
+    if (!b.locked) div.onclick = () => spawnConfetti(8);
+    grid.appendChild(div);
+  });
+}
+renderBadges();
+
+// ─── CONFETTI ───
+function spawnConfetti(count) {
+  const colors = ['#9b7ff4','#f5a623','#3de8a0','#f472b6','#fff'];
+  for (let i = 0; i < count; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti-piece';
+    el.style.cssText = `
+      left: ${Math.random()*100}%;
+      top: ${Math.random()*60 + 10}%;
+      background: ${colors[Math.floor(Math.random()*colors.length)]};
+      --dx: ${(Math.random()-0.5)*200}px;
+      --dy: ${Math.random()*200 + 100}px;
+      transform-origin: center;
+      border-radius: ${Math.random()>0.5?'50%':'2px'};
+      animation-delay: ${Math.random()*0.3}s;
+      animation-duration: ${1.2+Math.random()*0.6}s;
+    `;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 2000);
+  }
+}
+</script>
+</body>
+</html>
