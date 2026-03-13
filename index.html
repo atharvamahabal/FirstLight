@@ -203,10 +203,18 @@
   }
   .cta a:visited { color: white; }
   .cta a:active { transform: translateY(1px); }
-  .cta a[href="#screenshots"]:focus-visible,
-  .cta a[href="#screenshots"]:active {
+  .cta a:focus-visible,
+  .cta a:active {
     border-color: rgba(96,165,250,0.75);
-    box-shadow: 0 0 0 4px var(--blue-dim), 0 10px 34px rgba(124,58,237,0.25);
+    background: linear-gradient(135deg, rgba(96,165,250,0.95), rgba(59,130,246,0.95));
+    box-shadow: 0 0 0 4px var(--blue-dim), 0 10px 34px rgba(96,165,250,0.22);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .cta a:hover {
+      border-color: rgba(96,165,250,0.75);
+      background: linear-gradient(135deg, rgba(96,165,250,0.95), rgba(59,130,246,0.95));
+      box-shadow: 0 0 0 4px var(--blue-dim), 0 10px 34px rgba(96,165,250,0.22);
+    }
   }
   .cta a.secondary {
     background: rgba(255,255,255,0.04);
