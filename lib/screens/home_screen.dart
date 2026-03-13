@@ -40,9 +40,9 @@ class _HomeScreenState extends State<HomeScreen>
     super.initState();
     _updateTime();
     _timer = Timer.periodic(const Duration(seconds: 10), (_) => _updateTime());
-    _floatCtrl =
-        AnimationController(vsync: this, duration: const Duration(seconds: 4))
-          ..repeat(reverse: true);
+    _floatCtrl = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 1000))
+      ..repeat(reverse: true);
     _floatAnim = Tween<double>(begin: 0, end: -10)
         .animate(CurvedAnimation(parent: _floatCtrl, curve: Curves.easeInOut));
   }
@@ -187,7 +187,7 @@ class _HomeScreenState extends State<HomeScreen>
                   letterSpacing: 2)),
           const SizedBox(height: 4),
           GradientText(
-            'Rise & Conquer ✦',
+            'Rise & Conquer',
             gradient: const LinearGradient(
                 colors: [AppColors.text, AppColors.purple], stops: [0.6, 1.0]),
             style: const TextStyle(
@@ -234,7 +234,7 @@ class _StatPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: GlassCard(
+      child: FlatCard(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
         radius: BorderRadius.circular(14),
         child: Column(

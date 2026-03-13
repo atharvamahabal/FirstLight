@@ -33,100 +33,58 @@ class GlassCard extends StatelessWidget {
   }
 }
 
-// ── Ambient Background ────────────────────────────────────────────────────────
-class AmbientBackground extends StatefulWidget {
+// ── Flat Card ─────────────────────────────────────────────────────────────────
+class FlatCard extends StatelessWidget {
   final Widget child;
-  const AmbientBackground({super.key, required this.child});
+  final EdgeInsets? padding;
+  final BorderRadius? radius;
+  final Color color;
+
+  const FlatCard({
+    super.key,
+    required this.child,
+    this.padding,
+    this.radius,
+    this.color = AppColors.bg2,
+  });
 
   @override
-  State<AmbientBackground> createState() => _AmbientBackgroundState();
+  Widget build(BuildContext context) {
+    return Container(
+      padding: padding ?? const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: radius ?? BorderRadius.circular(20),
+      ),
+      child: child,
+    );
+  }
 }
 
-class _AmbientBackgroundState extends State<AmbientBackground>
-    with TickerProviderStateMixin {
-  late AnimationController _ctrl1, _ctrl2, _ctrl3;
-  late Animation<Offset> _orb1, _orb2;
-  late Animation<double> _orb3Scale;
-
-  @override
-  void initState() {
-    super.initState();
-    _ctrl1 = AnimationController(vsync: this, duration: const Duration(seconds: 12))
-      ..repeat(reverse: true);
-    _ctrl2 = AnimationController(vsync: this, duration: const Duration(seconds: 10))
-      ..repeat(reverse: true);
-    _ctrl3 = AnimationController(vsync: this, duration: const Duration(seconds: 14))
-      ..repeat(reverse: true);
-
-    _orb1 = Tween<Offset>(begin: Offset.zero, end: const Offset(40, 30))
-        .animate(CurvedAnimation(parent: _ctrl1, curve: Curves.easeInOut));
-    _orb2 = Tween<Offset>(begin: Offset.zero, end: const Offset(-30, -40))
-        .animate(CurvedAnimation(parent: _ctrl2, curve: Curves.easeInOut));
-    _orb3Scale = Tween<double>(begin: 1.0, end: 1.2)
-        .animate(CurvedAnimation(parent: _ctrl3, curve: Curves.easeInOut));
-  }
-
-  @override
-  void dispose() {
-    _ctrl1.dispose();
-    _ctrl2.dispose();
-    _ctrl3.dispose();
-    super.dispose();
-  }
+// ── Ambient Background ────────────────────────────────────────────────────────
+class AmbientBackground extends StatelessWidget {
+  final Widget child;
+  const AmbientBackground({super.key, required this.child});
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        Container(color: AppColors.bg),
-        AnimatedBuilder(
-          animation: _orb1,
-          builder: (_, __) => Positioned(
-            top: -100 + _orb1.value.dy,
-            left: -100 + _orb1.value.dx,
-            child: _Orb(size: 420, color: const Color(0xFF7C3AED), opacity: 0.30),
-          ),
-        ),
-        AnimatedBuilder(
-          animation: _orb2,
-          builder: (_, __) => Positioned(
-            bottom: -140 + _orb2.value.dy,
-            right: -120 + _orb2.value.dx,
-            child: _Orb(size: 320, color: const Color(0xFFF5A623), opacity: 0.20),
-          ),
-        ),
-        AnimatedBuilder(
-          animation: _orb3Scale,
-          builder: (_, __) => Center(
-            child: Transform.scale(
-              scale: _orb3Scale.value,
-              child: _Orb(size: 280, color: const Color(0xFFF472B6), opacity: 0.14),
+        Container(
+          decoration: const BoxDecoration(
+            gradient: RadialGradient(
+              center: Alignment(-0.9, -0.9),
+              radius: 1.3,
+              colors: [
+                Color(0x227C3AED),
+                AppColors.bg,
+              ],
+              stops: [0.0, 0.75],
             ),
           ),
         ),
-        widget.child,
+        child,
       ],
-    );
-  }
-}
-
-class _Orb extends StatelessWidget {
-  final double size;
-  final Color color;
-  final double opacity;
-  const _Orb({required this.size, required this.color, required this.opacity});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: RadialGradient(
-          colors: [color.withOpacity(opacity), Colors.transparent],
-        ),
-      ),
     );
   }
 }
@@ -154,17 +112,15 @@ class GradientText extends StatelessWidget {
 class PrimaryButton extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
-  final Color startColor;
-  final Color endColor;
-  final Color shadowColor;
+  final Color color;
+  final Color textColor;
 
   const PrimaryButton({
     super.key,
     required this.label,
     required this.onTap,
-    this.startColor = AppColors.purpleDark,
-    this.endColor = AppColors.purple,
-    this.shadowColor = AppColors.purple,
+    this.color = AppColors.amber,
+    this.textColor = AppColors.bg,
   });
 
   @override
@@ -175,28 +131,17 @@ class PrimaryButton extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 18),
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [startColor, endColor],
-          ),
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: shadowColor.withOpacity(0.4),
-              blurRadius: 32,
-              offset: const Offset(0, 8),
-            ),
-          ],
+          color: color,
+          borderRadius: BorderRadius.circular(14),
         ),
         child: Text(
           label,
           textAlign: TextAlign.center,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: textColor,
             fontSize: 16,
             fontWeight: FontWeight.w800,
-            letterSpacing: 1.5,
+            letterSpacing: 1.2,
           ),
         ),
       ),

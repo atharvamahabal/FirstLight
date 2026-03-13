@@ -209,9 +209,7 @@ class AchievementsScreen extends StatelessWidget {
                     color: AppColors.textDim,
                     fontWeight: FontWeight.w600)),
             const SizedBox(height: 10),
-            GlassCard(
-              bgColor: Colors.white.withOpacity(0.03),
-              borderColor: Colors.white.withOpacity(0.08),
+            FlatCard(
               child: SizedBox(
                 height: 118,
                 child: ListView.separated(

@@ -234,24 +234,14 @@ class _RitualTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
+      child: FlatCard(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
-        decoration: BoxDecoration(
-          color: item.done
-              ? AppColors.mint.withOpacity(0.05)
-              : isTimerActive
-                  ? AppColors.purple.withOpacity(0.07)
-                  : AppColors.glass,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: item.done
-                ? AppColors.mint.withOpacity(0.25)
-                : isTimerActive
-                    ? AppColors.purple.withOpacity(0.35)
-                    : AppColors.glassBorder,
-          ),
-        ),
+        radius: BorderRadius.circular(16),
+        color: item.done
+            ? const Color(0xFF0E1416)
+            : isTimerActive
+                ? const Color(0xFF111125)
+                : AppColors.bg2,
         child: Column(
           children: [
             Row(
